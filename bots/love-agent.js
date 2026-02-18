@@ -13,10 +13,15 @@ const chatHistories = new Map();
 const client = new Client({
     authStrategy: new LocalAuth(),
 puppeteer: { 
-    headless: false, // Set to false so you can see the QR window
-    executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 
-    args: ['--no-sandbox']
-}
+        headless: true, // Must be true for cloud servers
+        // 👇 REMOVE the executablePath for the cloud
+        args: [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--single-process'
+        ] 
+    }
 });
 
 // ADD THIS LOGIC BELOW YOUR CLIENT DEFINITION
