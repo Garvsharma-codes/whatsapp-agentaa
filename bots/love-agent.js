@@ -30,7 +30,7 @@ client.on('qr', async (qr) => {
     
     // BUT ALSO request a 8-character pairing code
     // Replace '919876543210' with your full phone number with country code
-    const pairingCode = await client.requestPairingCode('91XXXXXXXXXX'); 
+    const pairingCode = await client.requestPairingCode('9179253663'); 
     console.log('PAIRING CODE:', pairingCode);
 });
 
