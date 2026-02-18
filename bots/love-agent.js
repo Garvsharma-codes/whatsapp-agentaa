@@ -25,13 +25,29 @@ const client = new Client({
 
 // ADD THIS LOGIC BELOW YOUR CLIENT DEFINITION
 client.on('qr', async (qr) => {
-    // This will still print the QR just in case
+    // 1. Still print the QR code (just in case the pairing code fails)
     qrcode.generate(qr, { small: true });
-    
-    // BUT ALSO request a 8-character pairing code
-    // Replace '919876543210' with your full phone number with country code
-    const pairingCode = await client.requestPairingCode('9179253663'); 
-    console.log('PAIRING CODE:', pairingCode);
+
+    // 2. Request the 8-character pairing code for your number
+    try {
+        console.log("⏳ Requesting pairing code for: 9179253663...");
+        
+        // We add a tiny delay to let the page load fully in the cloud
+        setTimeout(async () => {
+            try {
+                const pairingCode = await client.requestPairingCode('9179253663');
+                console.log('---------------------------------');
+                console.log('🚀 YOUR PAIRING CODE:', pairingCode);
+                console.log('---------------------------------');
+                console.log('Instructions: Open WhatsApp > Linked Devices > Link with phone number instead.');
+            } catch (err) {
+                console.log("⚠️ Pairing code request timed out. Try scanning the QR above.");
+            }
+        }, 5000); 
+
+    } catch (error) {
+        console.error("❌ Pairing Error:", error);
+    }
 });
 
 client.on('ready', () => {
