@@ -23,7 +23,16 @@ const client = new Client({
     }
 });
 
-client.on('qr', (qr) => qrcode.generate(qr, { small: true }));
+// ADD THIS LOGIC BELOW YOUR CLIENT DEFINITION
+client.on('qr', async (qr) => {
+    // This will still print the QR just in case
+    qrcode.generate(qr, { small: true });
+    
+    // BUT ALSO request a 8-character pairing code
+    // Replace '919876543210' with your full phone number with country code
+    const pairingCode = await client.requestPairingCode('91XXXXXXXXXX'); 
+    console.log('PAIRING CODE:', pairingCode);
+});
 
 client.on('ready', () => {
     console.log('🚀 Groq-Powered Agent is ONLINE! Ready to chat.');
