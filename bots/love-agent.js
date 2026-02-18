@@ -43,7 +43,7 @@ client.on('qr', async (qr) => {
             } catch (err) {
                 console.log("⚠️ Pairing code request timed out. Try scanning the QR above.");
             }
-        }, 5000); 
+        }, 10000); 
 
     } catch (error) {
         console.error("❌ Pairing Error:", error);
