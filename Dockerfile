@@ -1,18 +1,27 @@
-# 1. Use an image that has Chrome pre-installed for Puppeteer
+# 1. Use the official Puppeteer image
 FROM ghcr.io/puppeteer/puppeteer:latest
 
-# 2. Set the working directory inside the cloud computer
-WORKDIR /app
+# 2. Switch to root temporarily to fix permissions
+USER root
 
-# 3. Copy your package files first to install libraries
-COPY package*.json ./
+# 3. Create the app directory and give ownership to the puppeteer user
+WORKDIR /app
+RUN chown -R pptruser:pptruser /app
+
+# 4. Switch back to the non-root user for security
+USER pptruser
+
+# 5. Copy package files (ownership will be handled by the user)
+COPY --chown=pptruser:pptruser package*.json ./
+
+# 6. Install dependencies
 RUN npm install
 
-# 4. Copy all your files (bots, etc.) into the folder
-COPY . .
+# 7. Copy the rest of your code
+COPY --chown=pptruser:pptruser . .
 
-# 5. Tell the bot it's running in the cloud (No screen)
+# 8. Set environment to headless
 ENV HEADLESS=true
 
-# 6. The command to start your bot
+# 9. Start the bot
 CMD ["node", "bots/love-agent.js"]
