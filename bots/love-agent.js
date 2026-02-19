@@ -70,7 +70,7 @@ const contact = await msg.getContact();
         // 👇 THE FIX: Remove all spaces and '+' from the name so "+91 93 99" becomes "919399"
         const cleanName = rawName.replace(/[\s+]/g, '');
 // List of people the bot should talk to
-const TARGET_NAMES = ["Rakesh", "Aditya", "Pushpit", "Aniket", "Kartikey", "saksham","Riya","8103155566", "9993425432","9039927001","9302974700","9093696238","9863560836","9131389947","8319657105", "9399238599", "paridhi","7000896727" ];
+const TARGET_NAMES = ["Rakesh", "Aditya", "Pushpit", "Aniket", "Kartikey", "saksham","Riya","8103155566", "9993425432","9039927001","9302974700","9093696238","9863560836","9131389947","8319657105", "9399238599", "paridhi","7000896727","26569338843245" ];
 
 // Check if the current sender's name is in our list
 const isTarget = TARGET_NAMES.some(target => 
