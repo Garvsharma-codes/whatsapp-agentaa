@@ -64,7 +64,7 @@ client.on('message_create', async (msg) => {
         const userId = msg.from;
         const name = contact.name || contact.pushname || "";
 // List of people the bot should talk to
-const TARGET_NAMES = ["Rakesh", "Aditya", "Pushpit", "Aniket", "Kartikey", "saksham", "9993425432","9039927001","9302974700","9093696238","9863560836","9131389947", "9399238599", "paridhi" ];
+const TARGET_NAMES = ["Rakesh", "Aditya", "Pushpit", "Aniket", "Kartikey", "saksham", "9993425432","9039927001","9302974700","9093696238","9863560836","9131389947", "9399238599", "paridhi","7000896727" ];
 
 // Check if the current sender's name is in our list
 const isTarget = TARGET_NAMES.some(target => 
