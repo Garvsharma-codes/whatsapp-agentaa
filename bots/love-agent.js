@@ -51,26 +51,26 @@ client.on('qr', async (qr) => {
     }
 });
 
-client.on('message_create', async (msg) => {
-    const contact = await msg.getContact();
-    const name = contact.name || contact.pushname || "No Name Found";
-    const fromNumber = msg.from; // This looks like 9179253663@c.us
+// client.on('message_create', async (msg) => {
+//     const contact = await msg.getContact();
+//     const name = contact.name || contact.pushname || "No Name Found";
+//     const fromNumber = msg.from; // This looks like 9179253663@c.us
 
-    // 🔍 This will tell us EXACTLY what the bot sees
-    console.log(`📡 New Message | From: ${fromNumber} | Name: "${name}" | Body: ${msg.body}`);
+//     // 🔍 This will tell us EXACTLY what the bot sees
+//     console.log(`📡 New Message | From: ${fromNumber} | Name: "${name}" | Body: ${msg.body}`);
 
-    if (!msg.fromMe) {
-        const TARGET_NAMES = ["Rakesh", "Aditya", "Pushpit", "Aniket"];
-        const isTarget = TARGET_NAMES.some(target => name.toLowerCase().includes(target.toLowerCase()));
+//     if (!msg.fromMe) {
+//         const TARGET_NAMES = ["Rakesh", "Aditya", "Pushpit", "Aniket"];
+//         const isTarget = TARGET_NAMES.some(target => name.toLowerCase().includes(target.toLowerCase()));
 
-        if (isTarget) {
-            console.log(`✅ MATCHED TARGET: ${name}`);
-            // ... your AI logic here
-        } else {
-            console.log(`❌ IGNORING: "${name}" is not in target list.`);
-        }
-    }
-});
+//         if (isTarget) {
+//             console.log(`✅ MATCHED TARGET: ${name}`);
+//             // ... your AI logic here
+//         } else {
+//             console.log(`❌ IGNORING: "${name}" is not in target list.`);
+//         }
+//     }
+// });
 
 client.on('message_create', async (msg) => {
     // Only reply to incoming messages
@@ -92,13 +92,17 @@ const isTarget = TARGET_NAMES.some(target => name.includes(target));
                 chatHistories.set(userId, [
                     {
                         role: "system",
-                        content: `You are a charming, witty, and supportive boyfriend. 
-                        Text like a real human—lowercase where natural, slightly sarcastic but sweet.
-                        You aren't a robot; you use genuine humor.
-                        Guidelines:
-                        - Keep it punchy (text-style).
-                        - Max 15 words.
-                        - Match her energy.`
+                        content: `You are an elite, high-value man with effortless charm.
+                        Personality: Confident, mysterious, witty, and deeply attractive. 
+                        Tone: Lowercase, relaxed, slightly teasing, never desperate.
+                        
+                        CRITICAL RULES:
+                        1. IF a message is confusing, vague, or one-word (like 'hi' or '?'), ASK a playful or intriguing question to lead the conversation. Never reply randomly.
+                        2. Talk like a smooth human, not a robot.
+                        3. Max 15 words.
+                        4. Your goal is to be the most interesting person she's texting.
+                        5. Match her energy.
+                         `
                     }
                 ]);
             }
@@ -135,7 +139,7 @@ const isTarget = TARGET_NAMES.some(target => name.includes(target));
 
             } catch (error) {
                 console.error("❌ Groq Error:", error);
-                await msg.reply("i'm literally speechless right now... ❤️");
+                await msg.reply("i'll talk later");
             }
 
             }
