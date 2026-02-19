@@ -26,7 +26,10 @@ const client = new Client({
             '--disable-extensions',
             '--blink-settings=imagesEnabled=false', 
             '--disable-software-rasterizer',        
-            '--mute-audio'                          
+            '--mute-audio'  ,
+            // 👇 THE NEW AGGRESSIVE MEMORY LIMITS 👇
+            '--js-flags="--max-old-space-size=250"', // Forces Chrome to dump memory frequently
+            '--disk-cache-size=1048576'              // Limits browser cache to 1MB                       
         ] 
     }
 });
