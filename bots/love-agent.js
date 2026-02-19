@@ -23,7 +23,7 @@ puppeteer: {
             '--disable-gpu', // Disables hardware acceleration to save RAM
             '--no-first-run',
             '--no-zygote',
-            '--single-process', // Keeps everything in one process
+            // '--single-process', // Keeps everything in one process
             '--disable-extensions'
         ] 
     }
