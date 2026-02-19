@@ -24,7 +24,10 @@ puppeteer: {
             '--no-first-run',
             '--no-zygote',
             // '--single-process', // Keeps everything in one process
-            '--disable-extensions'
+            '--disable-extensions',
+            '--blink-settings=imagesEnabled=false', // Stops downloading profile pics and status images
+            '--disable-software-rasterizer',        // Saves CPU/RAM from trying to draw the UI
+            '--mute-audio'                          // Stops WhatsApp web from loading notification sound files
         ] 
     }
 });
