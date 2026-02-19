@@ -16,10 +16,15 @@ puppeteer: {
         headless: true, // Must be true for cloud servers
         // 👇 REMOVE the executablePath for the cloud
         args: [
-            '--no-sandbox', 
+'--no-sandbox', 
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--single-process'
+            '--disable-dev-shm-usage', // Uses /tmp instead of memory for shared memory
+            '--disable-accelerated-2d-canvas',
+            '--disable-gpu', // Disables hardware acceleration to save RAM
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process', // Keeps everything in one process
+            '--disable-extensions'
         ] 
     }
 });
@@ -51,26 +56,6 @@ client.on('qr', async (qr) => {
     }
 });
 
-// client.on('message_create', async (msg) => {
-//     const contact = await msg.getContact();
-//     const name = contact.name || contact.pushname || "No Name Found";
-//     const fromNumber = msg.from; // This looks like 9179253663@c.us
-
-//     // 🔍 This will tell us EXACTLY what the bot sees
-//     console.log(`📡 New Message | From: ${fromNumber} | Name: "${name}" | Body: ${msg.body}`);
-
-//     if (!msg.fromMe) {
-//         const TARGET_NAMES = ["Rakesh", "Aditya", "Pushpit", "Aniket"];
-//         const isTarget = TARGET_NAMES.some(target => name.toLowerCase().includes(target.toLowerCase()));
-
-//         if (isTarget) {
-//             console.log(`✅ MATCHED TARGET: ${name}`);
-//             // ... your AI logic here
-//         } else {
-//             console.log(`❌ IGNORING: "${name}" is not in target list.`);
-//         }
-//     }
-// });
 
 client.on('message_create', async (msg) => {
     // Only reply to incoming messages
