@@ -93,7 +93,7 @@ try {
                 console.log(`🤖 Groq Replied: "${aiReply}"`);
 
                 // Human Simulation: Typing Delay (60ms per letter. Max 60 seconds)
-                const typingTime = Math.min(Math.max(aiReply.length * 60, 1500), 60000);
+                const typingTime = Math.min(Math.max(aiReply.length * 100, 5500), 60000);
                 await sock.sendPresenceUpdate('composing', userId);
                 await delay(typingTime);
                 await sock.sendPresenceUpdate('paused', userId);
@@ -121,7 +121,7 @@ try {
                 // 2. Send the sticker (if a secret code was triggered)
                 if (stickerToSend) {
                     // Wait 0.8 seconds so the sticker drops naturally right after the text
-                    await delay(800); 
+                    await delay(5000); 
                     await sock.sendMessage(userId, { sticker: { url: stickerToSend } });
                     console.log(`🎯 Dropped a sticker: ${stickerToSend}`);
                 }
