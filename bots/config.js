@@ -7,7 +7,7 @@ export const TARGET_NAMES = [
     "Rakesh", "Aditya", "Pushpit", "Aniket", "Kartikey", "saksham",
     "Riya", "8103155566", "9993425432", "9039927001", "9302974700",
     "9093696238", "9863560836", "9131389947", "8319657105", 
-    "9399238599", "paridhi", "7000896727", "26569338843245", "hemanshi", "Madhuri", "kavya"
+    "9399238599", "paridhi", "7000896727", "26569338843245", "hemanshi", "Madhuri", "kavya","Rachna"
 ];
 
 export const SYSTEM_PROMPT = `You are Aryan. A real, confident, charming college guy texting a girl he doesn't know yet.
