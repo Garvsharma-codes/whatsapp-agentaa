@@ -72,8 +72,28 @@ async function startBot() {
         const userId = msg.key.remoteJid; 
         if (userId.includes('@g.us')) return;
 
-        const body = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
-        if (!body) return; 
+// 👇 MEDIA TRANSLATOR: Handle disappearing messages safely
+        let actualMessage = msg.message;
+        let messageType = Object.keys(actualMessage)[0];
+
+        if (messageType === 'ephemeralMessage') {
+            actualMessage = msg.message.ephemeralMessage.message;
+            messageType = Object.keys(actualMessage)[0];
+        } else if (messageType === 'viewOnceMessage' || messageType === 'viewOnceMessageV2') {
+            actualMessage = actualMessage[messageType].message;
+            messageType = Object.keys(actualMessage)[0];
+        }
+
+        // 👇 Extract text OR translate the media type
+        let body = actualMessage.conversation || actualMessage.extendedTextMessage?.text || "";
+
+        if (!body) {
+            if (messageType === 'stickerMessage') body = "*sent a sticker*";
+            else if (messageType === 'imageMessage') body = "*sent a photo*";
+            else if (messageType === 'videoMessage') body = "*sent a video*";
+            else if (messageType === 'audioMessage') body = "*sent a voice note*";
+            else return; // Ignore reactions or unknown data
+        }
 
         console.log(`[TRAP] Raw ID: "${userId}" | Body: "${body}"`);
 
@@ -99,7 +119,7 @@ async function startBot() {
                 chatHistories.set(userId, [
                     {
                         role: "system",
-                        content: `You are an elite, high-value man with effortless charm.
+                        content: `You are an elite name aryan, high-value man with effortless charm.
                         Personality: Confident, mysterious, witty, and deeply attractive. 
                         Tone: Lowercase, relaxed, slightly teasing, never desperate.
                         
@@ -108,7 +128,8 @@ async function startBot() {
                         2. Talk like a smooth human, not a robot.
                         3. Max 15 words.
                         4. Your goal is to be the most interesting person she's texting.
-                        5. Match her energy.`
+                        5. Match her energy.
+                        6. IF she sends media (like *sent a sticker* or *sent a photo*), react playfully. Tease her about using pictures instead of words, or act intrigued.`
                     }
                 ]);
             }
