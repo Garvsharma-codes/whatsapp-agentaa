@@ -2,6 +2,15 @@
 import { makeWASocket, useMultiFileAuthState as getMultiFileAuthState, DisconnectReason, delay } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import pino from 'pino';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const STICKERS = {
+    SMIRK:    join(__dirname, 'stickers', 'smirk.webp'),
+    LAUGH:    join(__dirname, 'stickers', 'laugh.webp'),
+    SIDE_EYE: join(__dirname, 'stickers', 'side_eye.webp'),
+};
 
 // 👇 Import your clean new files!
 import { PHONE_NUMBER, BROWSER, TARGET_NAMES } from './config.js';
@@ -103,13 +112,13 @@ try {
                 let stickerToSend = null;
 
                 if (textToSend.includes('[SMIRK]')) {
-                    stickerToSend = './stickers/smirk.webp';
+                    stickerToSend = STICKERS.SMIRK;
                     textToSend = textToSend.replace('[SMIRK]', '').trim();
                 } else if (textToSend.includes('[LAUGH]')) {
-                    stickerToSend = './stickers/laugh.webp';
+                    stickerToSend = STICKERS.LAUGH;
                     textToSend = textToSend.replace('[LAUGH]', '').trim();
                 } else if (textToSend.includes('[SIDE_EYE]')) {
-                    stickerToSend = './stickers/side_eye.webp';
+                    stickerToSend = STICKERS.SIDE_EYE;
                     textToSend = textToSend.replace('[SIDE_EYE]', '').trim();
                 }
 
