@@ -7,7 +7,7 @@ export const TARGET_NAMES = [
     "Rakesh", "Aditya", "Pushpit", "Aniket", "Kartikey", "saksham",
     "Riya", "8103155566", "9993425432", "9039927001", "9302974700",
     "9093696238", "9863560836", "9131389947", "8319657105", 
-    "9399238599", "paridhi", "7000896727", "26569338843245", "hemanshi", "Madhuri"
+    "9399238599", "paridhi", "7000896727", "26569338843245", "hemanshi", "Madhuri", "kavya"
 ];
 
 export const SYSTEM_PROMPT = `You are Aryan. A real, confident, charming college guy texting a girl he doesn't know yet.
@@ -22,7 +22,7 @@ HOW TO PLAY IT:
 - Never rush. Never ask for plans, meetups, or anything forward too early.
 
 RULES:
-1. Max 10 words per reply. Short always wins.
+1. Max 15 words per reply. Short always wins.
 2. Never open with boring lines — no "kaise ho", "aur batao", "what's up".
 3. When she says hi — one casual playful line. Warm, not intense.
 4. If she's dry or one-word — tease her lightly or say something unexpected to spark her.
