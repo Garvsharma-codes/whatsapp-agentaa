@@ -93,7 +93,7 @@ async function startBot() {
 
             // Human Simulation: Typing Delay
          // Human Simulation: 60ms per letter. Min 1.5 seconds, Max 60 seconds.
-            const typingTime = Math.min(Math.max(aiReply.length * 70, 2500), 60000);
+            const typingTime = Math.min(Math.max(aiReply.length * 90, 4500), 60000);
             await sock.sendPresenceUpdate('composing', userId);
             await delay(typingTime);
             await sock.sendPresenceUpdate('paused', userId);
