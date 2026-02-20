@@ -1,6 +1,6 @@
-import pkg from 'whatsapp-web.js';
-const { Client, LocalAuth } = pkg;
-import qrcode from 'qrcode-terminal';
+import { makeWASocket, useMultiFileAuthState as getMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys';
+import { Boom } from '@hapi/boom';
+import pino from 'pino';
 import Groq from 'groq-sdk';
 
 // 👇 YOUR KEYS
@@ -8,68 +8,76 @@ const GROQ_API_KEY = "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";
 const groq = new Groq({ apiKey: GROQ_API_KEY });
 const chatHistories = new Map();
 
-// 👇 THE MAGIC SHIELD: Records the exact second the bot turns on
 const botStartTime = Math.floor(Date.now() / 1000);
 
-const client = new Client({
-    authStrategy: new LocalAuth(),
-    puppeteer: { 
-        headless: true, 
-        args: [
-            '--no-sandbox', 
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage', 
-            '--disable-accelerated-2d-canvas',
-            '--disable-gpu', 
-            '--no-first-run',
-            '--no-zygote',
-            '--disable-extensions',
-            '--blink-settings=imagesEnabled=false', 
-            '--disable-software-rasterizer',        
-            '--mute-audio'  ,
-            // 👇 THE NEW AGGRESSIVE MEMORY LIMITS 👇
-            '--js-flags="--max-old-space-size=250"', // Forces Chrome to dump memory frequently
-            '--disk-cache-size=1048576'              // Limits browser cache to 1MB                       
-        ] 
-    }
-});
+// Use a more stable browser string to prevent random disconnects
+const BROWSER = ["Ubuntu", "Chrome", "20.0.04"];
+const PHONE_NUMBER = "919179253663"; // Your number with country code (91 for India)
 
-client.on('qr', async (qr) => {
-    qrcode.generate(qr, { small: true });
-    try {
-        console.log("⏳ Requesting pairing code for: 9179253663...");
-        setTimeout(async () => {
-            try {
-                const pairingCode = await client.requestPairingCode('9179253663');
-                console.log('---------------------------------');
-                console.log('🚀 YOUR PAIRING CODE:', pairingCode);
-                console.log('---------------------------------');
-            } catch (err) {
-                console.log("⚠️ Pairing code request timed out.");
+async function startBot() {
+    const { state, saveCreds } = await getMultiFileAuthState('baileys_auth_info');
+
+    const sock = makeWASocket({
+        auth: state,
+        printQRInTerminal: false,
+        logger: pino({ level: 'silent' }), // Hide the spammy logs
+        browser: BROWSER, 
+        syncFullHistory: false 
+    });
+
+    // Save login credentials whenever they update
+    sock.ev.on('creds.update', saveCreds);
+
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, lastDisconnect } = update;
+
+        if (connection === 'close') {
+            const shouldReconnect = (lastDisconnect?.error instanceof Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
+            console.log('⚠️ Connection closed. Reconnecting in 5 seconds...');
+            
+            if (shouldReconnect) {
+                setTimeout(startBot, 5000);
             }
-        }, 10000); 
-    } catch (error) {
-        console.error("❌ Pairing Error:", error);
+        } else if (connection === 'open') {
+            console.log('🚀 Smooth Operator is ONLINE and ignoring old messages!');
+        }
+    });
+
+    // Request the code ONLY if not registered AND the code hasn't been requested yet
+    if (!sock.authState.creds.registered) {
+         console.log(`⏳ Waiting for socket to stabilize before requesting code for ${PHONE_NUMBER}...`);
+         
+         // Wait 10 seconds for a more stable connection before asking WhatsApp for a code
+         setTimeout(async () => {
+             try {
+                 const code = await sock.requestPairingCode(PHONE_NUMBER); 
+                 console.log('\n---------------------------------');
+                 console.log(`🚀 YOUR PAIRING CODE: ${code}`);
+                 console.log('---------------------------------\n');
+                 console.log('Instructions: Open WhatsApp > Linked Devices > Link with phone number instead.');
+             } catch (err) {
+                 console.error("⚠️ Failed to request pairing code. Restart server.", err?.message || err);
+             }
+         }, 10000); 
     }
-});
 
-// Added this back so you know when it survives startup!
-client.on('ready', () => {
-    console.log('🚀 Smooth Operator is ONLINE and ignoring old messages!');
-});
+    sock.ev.on('messages.upsert', async ({ messages, type }) => {
+        if (type !== 'notify') return;
+        
+        const msg = messages[0];
+        
+        if (!msg.message || msg.key.fromMe || msg.key.remoteJid === 'status@broadcast') return;
+        if (msg.messageTimestamp < botStartTime) return;
 
-client.on('message_create', async (msg) => {
-    // 👇 CRITICAL FIX: Instantly drop any message sent before the bot started
-    if (msg.timestamp < botStartTime) {
-        return; 
-    }
+        const userId = msg.key.remoteJid; 
+        if (userId.includes('@g.us')) return;
 
-    console.log(`[TRAP] Raw ID: "${msg.from}" | Body: "${msg.body}" | From Me: ${msg.fromMe}`);
+        const body = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
+        if (!body) return; 
 
-    if (!msg.fromMe) {
-        const contact = await msg.getContact();
-        const userId = msg.from; 
-        const rawName = contact.name || contact.pushname || "";
+        console.log(`[TRAP] Raw ID: "${userId}" | Body: "${body}"`);
+
+        const rawName = msg.pushName || "";
         const cleanName = rawName.replace(/[\s+]/g, '');
 
         const TARGET_NAMES = [
@@ -85,7 +93,7 @@ client.on('message_create', async (msg) => {
         );
 
         if (isTarget) {
-            console.log(`📩 Message from ${rawName || userId}: "${msg.body}"`);
+            console.log(`📩 Message from ${rawName || userId}: "${body}"`);
             
             if (!chatHistories.has(userId)) {
                 chatHistories.set(userId, [
@@ -106,14 +114,13 @@ client.on('message_create', async (msg) => {
             }
             
             const history = chatHistories.get(userId);
-            history.push({ role: "user", content: msg.body });
+            history.push({ role: "user", content: body });
 
             if (history.length > 11) {
                 history.splice(1, history.length - 11);
             }
 
-            const chat = await msg.getChat();
-            await chat.sendStateTyping();
+            await sock.sendPresenceUpdate('composing', userId);
             
             try {
                 const completion = await groq.chat.completions.create({
@@ -127,16 +134,16 @@ client.on('message_create', async (msg) => {
                 console.log(`🤖 Groq Replied: "${aiReply}"`);
 
                 setTimeout(async () => {
-                    await msg.reply(aiReply);
+                    await sock.sendMessage(userId, { text: aiReply });
                     console.log('✅ Sent.');
                 }, 2000);
 
             } catch (error) {
                 console.error("❌ Groq Error:", error);
-                await msg.reply("i'll talk later");
+                await sock.sendMessage(userId, { text: "i'll talk later" });
             }
         }
-    }
-});
+    });
+}
 
-client.initialize();
+startBot();
