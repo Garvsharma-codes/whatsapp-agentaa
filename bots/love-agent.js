@@ -92,7 +92,8 @@ async function startBot() {
             console.log(`🤖 Groq Replied: "${aiReply}"`);
 
             // Human Simulation: Typing Delay
-            const typingTime = Math.min(Math.max(aiReply.length * 50, 1500), 5000);
+         // Human Simulation: 60ms per letter. Min 1.5 seconds, Max 60 seconds.
+            const typingTime = Math.min(Math.max(aiReply.length * 70, 2500), 60000);
             await sock.sendPresenceUpdate('composing', userId);
             await delay(typingTime);
             await sock.sendPresenceUpdate('paused', userId);
