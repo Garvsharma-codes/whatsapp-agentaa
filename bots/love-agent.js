@@ -84,23 +84,54 @@ async function startBot() {
             console.log(`📩 Message from ${rawName || userId}: "${body}"`);
             
             // Human Simulation: Read Delay
-            await delay(Math.floor(Math.random() * 1500) + 1500);
+            await delay(Math.floor(Math.random() * 4500) + 1500);
             await sock.readMessages([msg.key]);
 
-            // Call the brain!
-            const aiReply = await getAiResponse(userId, body);
-            console.log(`🤖 Groq Replied: "${aiReply}"`);
+try {
+                // Call the brain!
+                const aiReply = await getAiResponse(userId, body);
+                console.log(`🤖 Groq Replied: "${aiReply}"`);
 
-            // Human Simulation: Typing Delay
-         // Human Simulation: 60ms per letter. Min 1.5 seconds, Max 60 seconds.
-            const typingTime = Math.min(Math.max(aiReply.length * 90, 4500), 60000);
-            await sock.sendPresenceUpdate('composing', userId);
-            await delay(typingTime);
-            await sock.sendPresenceUpdate('paused', userId);
-            
-            // Send it
-            await sock.sendMessage(userId, { text: aiReply });
-            console.log('✅ Sent like a human.');
+                // Human Simulation: Typing Delay (60ms per letter. Max 60 seconds)
+                const typingTime = Math.min(Math.max(aiReply.length * 60, 1500), 60000);
+                await sock.sendPresenceUpdate('composing', userId);
+                await delay(typingTime);
+                await sock.sendPresenceUpdate('paused', userId);
+                
+                // 👇 THE STICKER INTERCEPTOR 👇
+                let textToSend = aiReply;
+                let stickerToSend = null;
+
+                if (textToSend.includes('[SMIRK]')) {
+                    stickerToSend = './stickers/smirk.webp';
+                    textToSend = textToSend.replace('[SMIRK]', '').trim();
+                } else if (textToSend.includes('[LAUGH]')) {
+                    stickerToSend = './stickers/laugh.webp';
+                    textToSend = textToSend.replace('[LAUGH]', '').trim();
+                } else if (textToSend.includes('[SIDE_EYE]')) {
+                    stickerToSend = './stickers/side_eye.webp';
+                    textToSend = textToSend.replace('[SIDE_EYE]', '').trim();
+                }
+
+                // 1. Send the text (if there's any text left after removing the code)
+                if (textToSend.length > 0) {
+                    await sock.sendMessage(userId, { text: textToSend });
+                }
+
+                // 2. Send the sticker (if a secret code was triggered)
+                if (stickerToSend) {
+                    // Wait 0.8 seconds so the sticker drops naturally right after the text
+                    await delay(800); 
+                    await sock.sendMessage(userId, { sticker: { url: stickerToSend } });
+                    console.log(`🎯 Dropped a sticker: ${stickerToSend}`);
+                }
+                
+                console.log('✅ Sent like a human.');
+
+            } catch (error) {
+                console.error("❌ Groq Error:", error);
+                await sock.sendMessage(userId, { text: "i'll talk later" });
+            }
         }
     });
 }
