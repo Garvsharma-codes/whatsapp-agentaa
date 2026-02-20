@@ -79,14 +79,15 @@ async function startBot() {
         if (messageType === 'ephemeralMessage') {
             actualMessage = msg.message.ephemeralMessage.message;
             messageType = Object.keys(actualMessage)[0];
+
         } else if (messageType === 'viewOnceMessage' || messageType === 'viewOnceMessageV2') {
             actualMessage = actualMessage[messageType].message;
             messageType = Object.keys(actualMessage)[0];
         }
 
-        // 👇 Extract text OR translate the media type
+        // 👇 Extract text 
         let body = actualMessage.conversation || actualMessage.extendedTextMessage?.text || "";
-
+        // translate the media type
         if (!body) {
             if (messageType === 'stickerMessage') body = "*sent a sticker*";
             else if (messageType === 'imageMessage') body = "*sent a photo*";
